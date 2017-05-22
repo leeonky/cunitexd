@@ -29,13 +29,24 @@ extern app_context actxt;
 #define close_subject() close_app_context(&actxt)
 #define invoke_subject(main_func) invoke_app(&actxt, main_func)
 
+extern void init_test();
+extern int run_test();
+extern CU_pSuite create_suite(const char *, int (*)(), int (*)());
+extern void add_case_with_name(CU_pSuite, const char *, void (*)());
+
+#define add_case(suite, test_case) add_case_with_name(suite, #test_case, test_case)
+
+#define SUITE_START()
+
+#define SUITE_END(suite_name)
+
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);
-extern const char *cunit_exd_equal(long long, long long);
+extern int cunit_exd_equal(long long, long long, const char *, int, const char *);
 
-#undef CU_ASSERT_EQUAL(actual, expected)
+#undef CU_ASSERT_EQUAL
 #define CU_ASSERT_EQUAL(actual, expected) \
-	  { CU_assertImplementation(((actual) == (expected)), __LINE__, cunit_exd_equal(actual, expected), __FILE__, "", CU_FALSE); }
+	cunit_exd_equal(actual, expected, __FILE__, __LINE__, __FUNCTION__)
 
 #undef CU_ASSERT_STRING_EQUAL
 #define CU_ASSERT_STRING_EQUAL(actual, expected) \
@@ -45,13 +56,6 @@ extern const char *cunit_exd_equal(long long, long long);
 #define CU_ASSERT_PTR_EQUAL(actual, expected) \
 	  { CU_assertImplementation(((void*)(actual) == (void*)(expected)), __LINE__, cunit_exd_ptr_equal(actual, expected), __FILE__, "", CU_FALSE); }
 
-
-extern void init_test();
-extern int run_test();
-extern CU_pSuite create_suite(const char *suit_name, int (*init)(), int (*clean)());
-extern void add_case_with_name(CU_pSuite suite, const char *case_name, void (*test)());
-
-#define add_case(suite, test_case) add_case_with_name(suite, #test_case, test_case)
 
 #define extern_mock_void_function_0(func) \
 	extern int func ## _times;\
