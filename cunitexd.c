@@ -41,6 +41,24 @@ int invoke_app(app_context *ctxt, int(*sub_main)(int, char**, FILE *, FILE *, FI
 	return sub_main(ctxt->argc, ctxt->argv, ctxt->input_stream, ctxt->output_stream, ctxt->error_stream);
 }
 
+const char *cunit_exd_string_equal(const char *actual, const char *expected) {
+	static char buffer[1024];
+	sprintf(buffer, "\nexpect: [%s]\nactual: [%s]", expected, actual);
+	return buffer;
+}
+
+const char *cunit_exd_ptr_equal(const void *actual, const void *expected) {
+	static char buffer[256];
+	sprintf(buffer, "\nexpect: %p\nactual: %p", expected, actual);
+	return buffer;
+}
+
+const char *cunit_exd_equal(long long actual, long long expected) {
+	static char buffer[256];
+	sprintf(buffer, "\nexpect: %lld\nactual: %lld", expected, actual);
+	return buffer;
+}
+
 void init_test() {
 	if (CUE_SUCCESS != CU_initialize_registry())
 		exit(CU_get_error());

@@ -23,11 +23,27 @@ extern int invoke_app(app_context *, int(*)(int, char**, FILE *, FILE *, FILE *)
 
 extern app_context actxt;
 
-#define init_subject(input, ...) init_app_context(&actxt, input, ##__VA_ARGS__)
-#define std_out output_buffer(&actxt);
-#define std_err error_buffer(&actxt);
+#define init_subject(input, ...) init_app_context(&actxt, input, ##__VA_ARGS__, "")
+#define std_out output_buffer(&actxt)
+#define std_err error_buffer(&actxt)
 #define close_subject() close_app_context(&actxt)
 #define invoke_subject(main_func) invoke_app(&actxt, main_func)
+
+extern const char *cunit_exd_string_equal(const char *, const char *);
+extern const char *cunit_exd_ptr_equal(const void *, const void *);
+extern const char *cunit_exd_equal(long long, long long);
+
+#undef CU_ASSERT_EQUAL(actual, expected)
+#define CU_ASSERT_EQUAL(actual, expected) \
+	  { CU_assertImplementation(((actual) == (expected)), __LINE__, cunit_exd_equal(actual, expected), __FILE__, "", CU_FALSE); }
+
+#undef CU_ASSERT_STRING_EQUAL
+#define CU_ASSERT_STRING_EQUAL(actual, expected) \
+	  { CU_assertImplementation(!(strcmp((const char*)(actual), (const char*)(expected))), __LINE__, cunit_exd_string_equal(actual, expected), __FILE__, "", CU_FALSE); }
+
+#undef CU_ASSERT_PTR_EQUAL
+#define CU_ASSERT_PTR_EQUAL(actual, expected) \
+	  { CU_assertImplementation(((void*)(actual) == (void*)(expected)), __LINE__, cunit_exd_ptr_equal(actual, expected), __FILE__, "", CU_FALSE); }
 
 
 extern void init_test();
