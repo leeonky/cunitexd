@@ -36,9 +36,47 @@ extern void add_case_with_name(CU_pSuite, const char *, void (*)());
 
 #define add_case(suite, test_case) add_case_with_name(suite, #test_case, test_case)
 
-#define SUITE_START()
+#define MERGE_IDENTITY(prefix, id) MERGE_IDENTITY_I(prefix, id)
+#define MERGE_IDENTITY_I(prefix, id) prefix ## id
 
-#define SUITE_END(suite_name)
+#define ID_INC(id) ID_INC_I(id)
+#define ID_INC_I(id) ID_INC_ ## id
+
+#define ID_INC_0 1
+#define ID_INC_1 2
+#define ID_INC_2 3
+#define ID_INC_3 4
+
+#define ID_DEC(id) ID_DEC_I(id)
+#define ID_DEC_I(id) ID_DEC_ ## id
+
+#define ID_DEC_4 3
+#define ID_DEC_3 2
+#define ID_DEC_2 1
+#define ID_DEC_1 0
+
+#define CASE_PREFIX cunitexd_case
+
+#define SUITE_START(suit_name) \
+	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), __COUNTER__)(){ return create_suite(suit_name, NULL, NULL); }
+
+#define SUITE_CASE_I(case_name, index) \
+	static void MERGE_IDENTITY(CASE_PREFIX, index)();\
+	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
+		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
+		add_case_with_name(ctxt, case_name, MERGE_IDENTITY(CASE_PREFIX, index));\
+		return ctxt;\
+	}\
+	static void MERGE_IDENTITY(CASE_PREFIX, index)()
+
+#define SUITE_CASE(case_name) SUITE_CASE_I(case_name, __COUNTER__)
+
+#define SUITE_END(suite_identity) \
+void MERGE_IDENTITY(regist_, suite_identity)() {\
+	MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(__COUNTER__))();\
+}
+
+#define ADD_SUITE(suite_identity) MERGE_IDENTITY(regist_, suite_identity)()
 
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);
@@ -46,7 +84,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 
 #undef CU_ASSERT_EQUAL
 #define CU_ASSERT_EQUAL(actual, expected) \
-	cunit_exd_equal(actual, expected, __FILE__, __LINE__, __FUNCTION__)
+	cunit_exd_equal(actual, expected, __FILE__, __LINE__, "")
 
 #undef CU_ASSERT_STRING_EQUAL
 #define CU_ASSERT_STRING_EQUAL(actual, expected) \

@@ -59,6 +59,7 @@ CU_pSuite create_suite(const char *suit_name, int (*init)(), int (*clean)()) {
 	CU_pSuite suite = CU_add_suite(suit_name, init, clean);
 	if (NULL == suite) {
 		CU_cleanup_registry();
+		fprintf(stderr, "Failed to create suite\n");
 		exit(CU_get_error());
 	}
 	return suite;
@@ -67,6 +68,7 @@ CU_pSuite create_suite(const char *suit_name, int (*init)(), int (*clean)()) {
 void add_case_with_name(CU_pSuite suite, const char *case_name, void (*test)()) {
 	if (NULL == CU_add_test(suite, case_name, test)) {
 		CU_cleanup_registry();
+		fprintf(stderr, "Failed to add case\n");
 		exit(CU_get_error());
 	}
 }
