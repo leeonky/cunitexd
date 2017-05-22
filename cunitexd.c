@@ -90,3 +90,6 @@ int cunit_exd_equal(long long actual, long long expected, const char *file, int 
 	sprintf(buffer, "\nexpect: %lld\nactual: %lld", expected, actual);
 	return CU_assertImplementation(((actual) == (expected)), line, buffer, file, func, CU_FALSE);
 }
+
+int (*suite_init)();
+int (*suite_clear)();

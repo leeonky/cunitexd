@@ -36,6 +36,9 @@ extern void add_case_with_name(CU_pSuite, const char *, void (*)());
 
 #define add_case(suite, test_case) add_case_with_name(suite, #test_case, test_case)
 
+extern int (*suite_init)();
+extern int (*suite_clear)();
+
 #define MERGE_IDENTITY(prefix, id) MERGE_IDENTITY_I(prefix, id)
 #define MERGE_IDENTITY_I(prefix, id) prefix ## id
 
@@ -58,7 +61,7 @@ extern void add_case_with_name(CU_pSuite, const char *, void (*)());
 #define CASE_PREFIX cunitexd_case
 
 #define SUITE_START(suit_name) \
-	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), __COUNTER__)(){ return create_suite(suit_name, NULL, NULL); }
+	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), __COUNTER__)(){ return create_suite(suit_name, suite_init, suite_clear); }
 
 #define SUITE_CASE_I(case_name, index) \
 	static void MERGE_IDENTITY(CASE_PREFIX, index)();\
@@ -71,9 +74,31 @@ extern void add_case_with_name(CU_pSuite, const char *, void (*)());
 
 #define SUITE_CASE(case_name) SUITE_CASE_I(case_name, __COUNTER__)
 
+#define BEFORE_ALL() BEFORE_ALL_I(__COUNTER__)
+#define BEFORE_ALL_I(index) \
+	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index))();\
+	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
+		suite_init = MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index));\
+		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
+		return ctxt;\
+	}\
+	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index))()
+
+#define AFTER_ALL() AFTER_ALL_I(__COUNTER__)
+#define AFTER_ALL_I(index) \
+	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index))();\
+	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
+		suite_clear = MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index));\
+		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
+		return ctxt;\
+	}\
+	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index))()
+
+
 #define SUITE_END(suite_identity) \
 void MERGE_IDENTITY(regist_, suite_identity)() {\
 	MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(__COUNTER__))();\
+	suite_clear = suite_init = NULL;\
 }
 
 #define ADD_SUITE(suite_identity) MERGE_IDENTITY(regist_, suite_identity)()
