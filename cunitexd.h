@@ -15,10 +15,10 @@ typedef struct app_context {
 	char *argv[64];
 } app_context;
 
-extern void init_app_context(app_context *, const char *, char *, ...);
+extern int init_app_context(app_context *, const char *, char *, ...);
 extern char* output_buffer(app_context *);
 extern char* error_buffer(app_context *);
-extern void close_app_context(app_context *);
+extern int close_app_context(app_context *);
 extern int invoke_app(app_context *, int(*)(int, char**, FILE *, FILE *, FILE *));
 
 extern app_context actxt;

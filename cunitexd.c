@@ -4,7 +4,7 @@
 
 app_context actxt;
 
-void init_app_context(app_context *context, const char *input, char *arg1, ...) {
+int init_app_context(app_context *context, const char *input, char *arg1, ...) {
 	bzero(context, sizeof(app_context));
 
 	va_list list;
@@ -21,6 +21,7 @@ void init_app_context(app_context *context, const char *input, char *arg1, ...) 
 	context->input_stream = fmemopen(context->input_buffer, sizeof(context->input_buffer), "r");
 	context->output_stream = fmemopen(context->output_buffer, sizeof(context->output_buffer), "w");
 	context->error_stream = fmemopen(context->error_buffer, sizeof(context->error_buffer), "w");
+	return !(context->input_stream && context->output_stream && context->error_stream);
 }
 
 char* output_buffer(app_context *context) {
@@ -33,10 +34,11 @@ char* error_buffer(app_context *context) {
 	return context->error_buffer;
 }
 
-void close_app_context(app_context *context) {
-	fclose(context->input_stream);
-	fclose(context->output_stream);
-	fclose(context->error_stream);
+int close_app_context(app_context *context) {
+	int res1 = fclose(context->input_stream);
+	int res2 = fclose(context->output_stream);
+	int res3 = fclose(context->error_stream);
+	return res1 || res2 || res3;
 }
 
 int invoke_app(app_context *ctxt, int(*sub_main)(int, char**, FILE *, FILE *, FILE *)){
