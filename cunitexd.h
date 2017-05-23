@@ -29,18 +29,25 @@ extern app_context actxt;
 #define close_subject() close_app_context(&actxt)
 #define invoke_subject(main_func) invoke_app(&actxt, main_func)
 
+typedef int (*hook_pointer)();
+
+typedef struct test_context {
+	CU_pSuite suite;
+	hook_pointer *init_pointer;
+	hook_pointer *clear_pointer;
+	hook_pointer before_each;
+	hook_pointer after_each;
+} test_context;
+
 extern void init_test();
 extern int run_test();
 extern CU_pSuite create_suite(const char *, int (*)(), int (*)());
-extern void add_case_with_name(CU_pSuite, const char *, void (*)());
+extern void add_case_with_name(test_context *, const char *, void (*)());
 
 #define add_case(suite, test_case) add_case_with_name(suite, #test_case, test_case)
 
-extern int (*suite_init)();
-extern int (*suite_clear)();
-
-#define MERGE_IDENTITY(prefix, id) MERGE_IDENTITY_I(prefix, id)
-#define MERGE_IDENTITY_I(prefix, id) prefix ## id
+#define MG_ID(prefix, id) MG_ID_I(prefix, id)
+#define MG_ID_I(prefix, id) prefix ## id
 
 #define ID_INC(id) ID_INC_I(id)
 #define ID_INC_I(id) ID_INC_ ## id
@@ -49,59 +56,94 @@ extern int (*suite_clear)();
 #define ID_INC_1 2
 #define ID_INC_2 3
 #define ID_INC_3 4
+#define ID_INC_4 5
+#define ID_INC_5 6
+#define ID_INC_6 7
 
 #define ID_DEC(id) ID_DEC_I(id)
 #define ID_DEC_I(id) ID_DEC_ ## id
 
+#define ID_DEC_7 6
+#define ID_DEC_6 5
+#define ID_DEC_5 4
 #define ID_DEC_4 3
 #define ID_DEC_3 2
 #define ID_DEC_2 1
 #define ID_DEC_1 0
 
-#define CASE_PREFIX cunitexd_case
+#define CU_SYM(name1, name2) MG_ID(ctexd_, MG_ID(name1, name2))
 
-#define SUITE_START(suit_name) \
-	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), __COUNTER__)(){ return create_suite(suit_name, suite_init, suite_clear); }
+#define SUITE_START_I(suit_name, index) \
+	static hook_pointer CU_SYM(bfall_, index);\
+	static hook_pointer CU_SYM(afall_, index);\
+	static int CU_SYM(init_suit_, index)(){\
+		if (CU_SYM(bfall_, index))\
+			return CU_SYM(bfall_, index)();\
+		return 0;\
+	}\
+	static int CU_SYM(clear_suit_, index)(){\
+		if (CU_SYM(afall_, index))\
+			return CU_SYM(afall_, index)();\
+		return 0;\
+	}\
+	static test_context *CU_SYM(ctrl_, index)(){\
+		static test_context tctxt;\
+		tctxt.suite = create_suite(suit_name, CU_SYM(init_suit_, index), CU_SYM(clear_suit_, index));\
+		tctxt.init_pointer = &CU_SYM(bfall_, index);\
+		tctxt.clear_pointer = &CU_SYM(afall_, index);\
+		return &tctxt;\
+	}
+#define SUITE_START(suit_name) SUITE_START_I(suit_name, __COUNTER__);
 
 #define SUITE_CASE_I(case_name, index) \
-	static void MERGE_IDENTITY(CASE_PREFIX, index)();\
-	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
-		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
-		add_case_with_name(ctxt, case_name, MERGE_IDENTITY(CASE_PREFIX, index));\
+	static hook_pointer CU_SYM(bf_, index);\
+	static hook_pointer CU_SYM(af_, index);\
+	static void CU_SYM(case_i_, index)();\
+	static void CU_SYM(case_, index)(){\
+		if(CU_SYM(bf_, index))\
+			CU_SYM(bf_, index)();\
+		CU_SYM(case_i_, index)();\
+		if(CU_SYM(af_, index))\
+			CU_SYM(af_, index)();\
+	}\
+	static test_context *CU_SYM(ctrl_, index)(){\
+		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
+		add_case_with_name(ctxt, case_name, CU_SYM(case_, index));\
+		CU_SYM(bf_, index) = ctxt->before_each;\
+		CU_SYM(af_, index) = ctxt->after_each;\
 		return ctxt;\
 	}\
-	static void MERGE_IDENTITY(CASE_PREFIX, index)()
-
+	static void CU_SYM(case_i_, index)()
 #define SUITE_CASE(case_name) SUITE_CASE_I(case_name, __COUNTER__)
 
-#define BEFORE_ALL() BEFORE_ALL_I(__COUNTER__)
-#define BEFORE_ALL_I(index) \
-	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index))();\
-	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
-		suite_init = MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index));\
-		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
-		return ctxt;\
-	}\
-	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_init_, index))()
-
-#define AFTER_ALL() AFTER_ALL_I(__COUNTER__)
-#define AFTER_ALL_I(index) \
-	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index))();\
-	static CU_pSuite MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), index)(){\
-		suite_clear = MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index));\
-		CU_pSuite ctxt = MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(index))();\
-		return ctxt;\
-	}\
-	static int MERGE_IDENTITY(CASE_PREFIX, MERGE_IDENTITY(_clear_, index))()
-
-
 #define SUITE_END(suite_identity) \
-void MERGE_IDENTITY(regist_, suite_identity)() {\
-	MERGE_IDENTITY(MERGE_IDENTITY(CASE_PREFIX, _ctrl_), ID_DEC(__COUNTER__))();\
-	suite_clear = suite_init = NULL;\
+void MG_ID(regist_, suite_identity)() {\
+	CU_SYM(ctrl_, ID_DEC(__COUNTER__))();\
 }
 
-#define ADD_SUITE(suite_identity) MERGE_IDENTITY(regist_, suite_identity)()
+#define PROC_ALL(ba, index) \
+	static int CU_SYM(ba, index)();\
+	static test_context *CU_SYM(ctrl_, index)(){\
+		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
+		*(ctxt->MG_ID(ba, pointer)) = CU_SYM(ba, index);\
+		return ctxt;\
+	}\
+	static int CU_SYM(ba, index)()
+#define BEFORE_ALL() PROC_ALL(init_, __COUNTER__)
+#define AFTER_ALL() PROC_ALL(clear_, __COUNTER__)
+
+#define PROC_EACH(ba, index) \
+	static int CU_SYM(ba, index)();\
+	static test_context *CU_SYM(ctrl_, index)(){\
+		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
+		ctxt->MG_ID(ba, each) = CU_SYM(ba, index);\
+		return ctxt;\
+	}\
+	static int CU_SYM(ba, index)()
+#define BEFORE_EACH() PROC_EACH(before_, __COUNTER__)
+#define AFTER_EACH() PROC_EACH(after_, __COUNTER__)
+
+#define ADD_SUITE(suite_identity) MG_ID(regist_, suite_identity)()
 
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);

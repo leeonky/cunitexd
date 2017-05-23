@@ -65,8 +65,8 @@ CU_pSuite create_suite(const char *suit_name, int (*init)(), int (*clean)()) {
 	return suite;
 }
 
-void add_case_with_name(CU_pSuite suite, const char *case_name, void (*test)()) {
-	if (NULL == CU_add_test(suite, case_name, test)) {
+void add_case_with_name(test_context *tctxt, const char *case_name, void (*test)()) {
+	if (NULL == CU_add_test(tctxt->suite, case_name, test)) {
 		CU_cleanup_registry();
 		fprintf(stderr, "Failed to add case\n");
 		exit(CU_get_error());
@@ -90,6 +90,3 @@ int cunit_exd_equal(long long actual, long long expected, const char *file, int 
 	sprintf(buffer, "\nexpect: %lld\nactual: %lld", expected, actual);
 	return CU_assertImplementation(((actual) == (expected)), line, buffer, file, func, CU_FALSE);
 }
-
-int (*suite_init)();
-int (*suite_clear)();
