@@ -59,10 +59,12 @@ extern void add_case_with_name(test_context *, const char *, void (*)());
 #define ID_INC_4 5
 #define ID_INC_5 6
 #define ID_INC_6 7
+#define ID_INC_7 8
 
 #define ID_DEC(id) ID_DEC_I(id)
 #define ID_DEC_I(id) ID_DEC_ ## id
 
+#define ID_DEC_8 7
 #define ID_DEC_7 6
 #define ID_DEC_6 5
 #define ID_DEC_5 4
@@ -143,7 +145,10 @@ void MG_ID(regist_, suite_identity)() {\
 #define BEFORE_EACH() PROC_EACH(before_, __COUNTER__)
 #define AFTER_EACH() PROC_EACH(after_, __COUNTER__)
 
-#define ADD_SUITE(suite_identity) MG_ID(regist_, suite_identity)()
+#define ADD_SUITE(suite_identity) do {\
+		void MG_ID(regist_, suite_identity)();\
+		MG_ID(regist_, suite_identity)();\
+	} while(0)
 
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);
