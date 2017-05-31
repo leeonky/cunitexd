@@ -5,7 +5,7 @@
 app_context actxt;
 
 int init_app_context(app_context *context, const char *input, char *arg1, ...) {
-	bzero(context, sizeof(app_context));
+	close_app_context(context);
 
 	va_list list;
 	context->argc = 0;
@@ -35,10 +35,15 @@ char* error_buffer(app_context *context) {
 }
 
 int close_app_context(app_context *context) {
-	int res1 = fclose(context->input_stream);
-	int res2 = fclose(context->output_stream);
-	int res3 = fclose(context->error_stream);
-	return res1 || res2 || res3;
+	if (context->input_stream) {
+		int res1 = fclose(context->input_stream);
+		int res2 = fclose(context->output_stream);
+		int res3 = fclose(context->error_stream);
+
+		bzero(context, sizeof(app_context));
+		return res1 || res2 || res3;
+	} else
+		return 0;
 }
 
 int invoke_app(app_context *ctxt, int(*sub_main)(int, char**, FILE *, FILE *, FILE *)){
@@ -74,6 +79,8 @@ void add_case_with_name(test_context *tctxt, const char *case_name, void (*test)
 		exit(CU_get_error());
 	}
 }
+
+void *test_subject;
 
 const char *cunit_exd_string_equal(const char *actual, const char *expected) {
 	static char buffer[1024];

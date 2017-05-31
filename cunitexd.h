@@ -37,6 +37,7 @@ typedef struct test_context {
 	hook_pointer *clear_pointer;
 	hook_pointer before_each;
 	hook_pointer after_each;
+	void *subject;
 } test_context;
 
 extern void init_test();
@@ -97,22 +98,30 @@ extern void add_case_with_name(test_context *, const char *, void (*)());
 	}
 #define SUITE_START(suit_name) SUITE_START_I(suit_name, __COUNTER__);
 
+extern void *test_subject;
+
 #define SUITE_CASE_I(case_name, index) \
 	static hook_pointer CU_SYM(bf_, index);\
 	static hook_pointer CU_SYM(af_, index);\
+	static void *CU_SYM(sb_, index);\
 	static void CU_SYM(case_i_, index)();\
 	static void CU_SYM(case_, index)(){\
+		test_subject = CU_SYM(sb_, index); \
 		if(CU_SYM(bf_, index))\
-			CU_SYM(bf_, index)();\
+			if(CU_SYM(bf_, index)())\
+				fprintf(stderr, "\nBefore case got error");\
 		CU_SYM(case_i_, index)();\
 		if(CU_SYM(af_, index))\
-			CU_SYM(af_, index)();\
+			if(CU_SYM(af_, index)())\
+				fprintf(stderr, "\nAfter case got error");\
+		test_subject = NULL; \
 	}\
 	static test_context *CU_SYM(ctrl_, index)(){\
 		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
 		add_case_with_name(ctxt, case_name, CU_SYM(case_, index));\
 		CU_SYM(bf_, index) = ctxt->before_each;\
 		CU_SYM(af_, index) = ctxt->after_each;\
+		CU_SYM(sb_, index) = ctxt->subject;\
 		return ctxt;\
 	}\
 	static void CU_SYM(case_i_, index)()
@@ -145,6 +154,16 @@ void MG_ID(regist_, suite_identity)() {\
 #define BEFORE_EACH() PROC_EACH(before_, __COUNTER__)
 #define AFTER_EACH() PROC_EACH(after_, __COUNTER__)
 
+#define PROC_SUBJECT(t, index) \
+	static t CU_SYM(subject_, index)();\
+	static test_context *CU_SYM(ctrl_, index)(){\
+		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
+		ctxt->subject = CU_SYM(subject_, index);\
+		return ctxt;\
+	}\
+	static t CU_SYM(subject_, index)()
+#define SUBJECT(t) PROC_SUBJECT(t, __COUNTER__)
+
 #define ADD_SUITE(suite_identity) do {\
 		void MG_ID(regist_, suite_identity)();\
 		MG_ID(regist_, suite_identity)();\
@@ -154,18 +173,35 @@ extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);
 extern int cunit_exd_equal(long long, long long, const char *, int, const char *);
 
+#define CUE_ASSERT_BUF_LEN 1024
+
 #undef CU_ASSERT_EQUAL
 #define CU_ASSERT_EQUAL(actual, expected) \
 	cunit_exd_equal(actual, expected, __FILE__, __LINE__, "")
 
 #undef CU_ASSERT_STRING_EQUAL
 #define CU_ASSERT_STRING_EQUAL(actual, expected) \
-	  { CU_assertImplementation(!(strcmp((const char*)(actual), (const char*)(expected))), __LINE__, cunit_exd_string_equal(actual, expected), __FILE__, "", CU_FALSE); }
+	{ CU_assertImplementation(!(strcmp((const char*)(actual), (const char*)(expected))), __LINE__, cunit_exd_string_equal(actual, expected), __FILE__, "", CU_FALSE); }
 
 #undef CU_ASSERT_PTR_EQUAL
 #define CU_ASSERT_PTR_EQUAL(actual, expected) \
-	  { CU_assertImplementation(((void*)(actual) == (void*)(expected)), __LINE__, cunit_exd_ptr_equal(actual, expected), __FILE__, "", CU_FALSE); }
+	{ CU_assertImplementation(((void*)(actual) == (void*)(expected)), __LINE__, cunit_exd_ptr_equal(actual, expected), __FILE__, "", CU_FALSE); }
 
+#define CUE_ASSERT_SUBJECT_SUCCEEDED() \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int code = ((int(*)())test_subject)();\
+		snprintf(buffer, sizeof(buffer), "Expect called succeeded\n\tBut return(%d)", code);\
+		CU_assertImplementation(0==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_ASSERT_STDOUT_EQ(out) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		const char *sout = std_out;\
+		snprintf(buffer, sizeof(buffer), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", out, sout);\
+		CU_assertImplementation(0==strcmp(sout, out), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
 
 #define extern_mock_void_function_0(func) \
 	extern int func ## _times;\
