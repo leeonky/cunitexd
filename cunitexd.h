@@ -175,17 +175,15 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 
 #define CUE_ASSERT_BUF_LEN 1024
 
-#undef CU_ASSERT_EQUAL
-#define CU_ASSERT_EQUAL(actual, expected) \
-	cunit_exd_equal(actual, expected, __FILE__, __LINE__, "")
-
-#undef CU_ASSERT_STRING_EQUAL
-#define CU_ASSERT_STRING_EQUAL(actual, expected) \
+#define CUE_ASSERT_STRING_EQUAL(actual, expected) \
 	{ CU_assertImplementation(!(strcmp((const char*)(actual), (const char*)(expected))), __LINE__, cunit_exd_string_equal(actual, expected), __FILE__, "", CU_FALSE); }
 
-#undef CU_ASSERT_PTR_EQUAL
-#define CU_ASSERT_PTR_EQUAL(actual, expected) \
-	{ CU_assertImplementation(((void*)(actual) == (void*)(expected)), __LINE__, cunit_exd_ptr_equal(actual, expected), __FILE__, "", CU_FALSE); }
+#define CUE_ASSERT_PTR_EQUAL(actual, expected) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		snprintf(buffer, sizeof(buffer), "Unexpect pointer\n\texpect: %p\n\tactual: %p", expected, actual);\
+		CU_assertImplementation((void*)actual == (void*)expected, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
 
 #define CUE_ASSERT_SUBJECT_SUCCEEDED() \
 	do{\
@@ -193,6 +191,14 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		int code = ((int(*)())test_subject)();\
 		snprintf(buffer, sizeof(buffer), "Expect called succeeded\n\tBut return(%d)", code);\
 		CU_assertImplementation(0==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_ASSERT_SUBJECT_FAILED_WITH(err) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int code = ((int(*)())test_subject)();\
+		snprintf(buffer, sizeof(buffer), "Expect called failed with(%d)\n\tBut return(%d)", err, code);\
+		CU_assertImplementation(err==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STDOUT_EQ(out) \
