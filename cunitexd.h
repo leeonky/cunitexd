@@ -61,10 +61,12 @@ extern void add_case_with_name(test_context *, const char *, void (*)());
 #define ID_INC_5 6
 #define ID_INC_6 7
 #define ID_INC_7 8
+#define ID_INC_8 9
 
 #define ID_DEC(id) ID_DEC_I(id)
 #define ID_DEC_I(id) ID_DEC_ ## id
 
+#define ID_DEC_9 8
 #define ID_DEC_8 7
 #define ID_DEC_7 6
 #define ID_DEC_6 5
@@ -175,10 +177,21 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 
 #define CUE_ASSERT_BUF_LEN 1024
 
-#define CUE_ASSERT_STRING_EQUAL(actual, expected) \
-	{ CU_assertImplementation(!(strcmp((const char*)(actual), (const char*)(expected))), __LINE__, cunit_exd_string_equal(actual, expected), __FILE__, "", CU_FALSE); }
+#define CUE_ASSERT_EQ(actual, expected) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		snprintf(buffer, sizeof(buffer), "Unexpect value\n\texpect: %d\n\tactual: %d", expected, actual);\
+		CU_assertImplementation((int)actual == (int)expected, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
 
-#define CUE_ASSERT_PTR_EQUAL(actual, expected) \
+#define CUE_ASSERT_STRING_EQ(actual, expected) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		snprintf(buffer, sizeof(buffer), "Unexpect string\n\texpect: [%s]\n\tactual: [%s]", expected, actual);\
+		CU_assertImplementation(0 == strcmp(actual, expected), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_ASSERT_PTR_EQ(actual, expected) \
 	do{\
 		char buffer[CUE_ASSERT_BUF_LEN];\
 		snprintf(buffer, sizeof(buffer), "Unexpect pointer\n\texpect: %p\n\tactual: %p", expected, actual);\
@@ -207,6 +220,14 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		const char *sout = std_out;\
 		snprintf(buffer, sizeof(buffer), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", out, sout);\
 		CU_assertImplementation(0==strcmp(sout, out), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_ASSERT_STDERR_EQ(err) \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		const char *serr = std_err;\
+		snprintf(buffer, sizeof(buffer), "Unexpect stderr\n\texpect: [%s]\n\tactual: [%s]", err, serr);\
+		CU_assertImplementation(0==strcmp(serr, err), __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define extern_mock_void_function_0(func) \
@@ -290,8 +311,40 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	func ## _times = 0;\
 	mock_ ## func = stub;
 
-#define CU_EXPECT_CALLED_ONCE(func) CU_ASSERT_EQUAL(called_times_of(func), 1)
-#define CU_EXPECT_CALLED_WITH_STRING(func, at, arg) CU_ASSERT_STRING_EQUAL(params_of(func, at), arg)
-#define CU_EXPECT_CALLED_WITH(func, at, arg) CU_ASSERT_EQUAL(params_of(func, at), arg)
+#define CUE_EXPECT_CALLED_ONCE(func)  \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int times = called_times_of(func);\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called once\n\tbut called %d times", #func, times);\
+		CU_assertImplementation(1==times, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_EXPECT_CALLED_WITH_STRING(func, at, arg) \
+	CUE_EXPECT_CALLED_ONCE(func);\
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int times = called_times_of(func);\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with string [%s]\n\tbut got [%s]", #func, arg, params_of(func, at));\
+		CU_assertImplementation(0 == strcmp((const char*)params_of(func, at), (const char*)arg), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_EXPECT_CALLED_WITH_INT(func, at, arg) \
+	CUE_EXPECT_CALLED_ONCE(func);\
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int times = called_times_of(func);\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with int %d\n\tbut got %d", #func, arg, params_of(func, at));\
+		CU_assertImplementation((int)params_of(func, at) == (int)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+
+#define CUE_EXPECT_CALLED_WITH_PTR(func, at, arg) \
+	CUE_EXPECT_CALLED_ONCE(func);\
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int times = called_times_of(func);\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with pointer %p\n\tbut got %p", #func, arg, params_of(func, at));\
+		CU_assertImplementation((void *)params_of(func, at) == (void *)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
 
 #endif
