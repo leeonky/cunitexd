@@ -257,6 +257,37 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 			mock_ ## func(p1);\
 	}
 
+#define extern_mock_function_0(rtype, func) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)();
+#define mock_function_0(rtype, func) \
+	int func ## _times;\
+	rtype (*mock_ ## func)();\
+	rtype func() {\
+		static rtype default_result;\
+		++func ## _times;\
+		if(mock_ ## func)\
+			return mock_ ## func();\
+		return default_result;\
+	}
+
+#define extern_mock_function_1(rtype, func, t1) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)(t1);\
+	extern t1 func ## _p1;
+#define mock_function_1(rtype, func, t1) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	rtype (*mock_ ## func)(t1);\
+	rtype func(t1 p1) {\
+		static rtype default_result;\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		if(mock_ ## func)\
+			return mock_ ## func(p1);\
+		return default_result;\
+	}
+
 #define extern_mock_function_2(rtype, func, t1, t2) \
 	extern int func ## _times;\
 	extern rtype (*mock_ ## func)(t1, t2);\
@@ -274,6 +305,29 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		func ## _p2 = p2;\
 		if(mock_ ## func)\
 			return mock_ ## func(p1, p2);\
+		return default_result;\
+	}
+
+#define extern_mock_function_3(rtype, func, t1, t2, t3) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)(t1, t2, t3);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;
+#define mock_function_3(rtype, func, t1, t2, t3) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	rtype (*mock_ ## func)(t1, t2, t3);\
+	rtype func(t1 p1, t2 p2, t3 p3) {\
+		static rtype default_result;\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		if(mock_ ## func)\
+			return mock_ ## func(p1, p2, p3);\
 		return default_result;\
 	}
 
@@ -324,7 +378,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	do{\
 		char buffer[CUE_ASSERT_BUF_LEN];\
 		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with string [%s]\n\tbut got [%s]", #func, arg, params_of(func, at));\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] string [%s]\n\tbut got [%s]", #func, at, arg, params_of(func, at));\
 		CU_assertImplementation(0 == strcmp((const char*)params_of(func, at), (const char*)arg), __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
@@ -333,7 +387,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	do{\
 		char buffer[CUE_ASSERT_BUF_LEN];\
 		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with int %d\n\tbut got %d", #func, arg, params_of(func, at));\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] int %d\n\tbut got %d", #func, at, arg, params_of(func, at));\
 		CU_assertImplementation((int)params_of(func, at) == (int)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
@@ -343,7 +397,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	do{\
 		char buffer[CUE_ASSERT_BUF_LEN];\
 		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with pointer %p\n\tbut got %p", #func, arg, params_of(func, at));\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] pointer %p\n\tbut got %p", #func, at, arg, params_of(func, at));\
 		CU_assertImplementation((void *)params_of(func, at) == (void *)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
