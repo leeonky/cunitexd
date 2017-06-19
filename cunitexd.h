@@ -364,6 +364,13 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 #define init_mock_function(func, stub) \
 	func ## _times = 0;\
 	mock_ ## func = stub;
+#define CUE_EXPECT_NEVER_CALLED(func)  \
+	do{\
+		char buffer[CUE_ASSERT_BUF_LEN];\
+		int times = called_times_of(func);\
+		snprintf(buffer, sizeof(buffer), "Expect '%s' never called\n\tbut called %d times", #func, times);\
+		CU_assertImplementation(0==times, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+	} while(0)
 
 #define CUE_EXPECT_CALLED_ONCE(func)  \
 	do{\
