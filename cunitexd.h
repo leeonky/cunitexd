@@ -214,12 +214,14 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		CU_assertImplementation(err==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
-#define CUE_ASSERT_STDOUT_EQ(out) \
+#define CUE_ASSERT_STDOUT_EQ(out_fmt, ...) \
 	do{\
+		char fmt_out[CUE_ASSERT_BUF_LEN];\
 		char buffer[CUE_ASSERT_BUF_LEN];\
 		const char *sout = std_out;\
-		snprintf(buffer, sizeof(buffer), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", out, sout);\
-		CU_assertImplementation(0==strcmp(sout, out), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		snprintf(fmt_out, sizeof(fmt_out), out_fmt, ## __VA_ARGS__);\
+		snprintf(buffer, sizeof(buffer), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", fmt_out, sout);\
+		CU_assertImplementation(0==strcmp(sout, fmt_out), __LINE__, buffer, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STDERR_EQ(err) \
