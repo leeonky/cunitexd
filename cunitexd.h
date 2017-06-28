@@ -62,10 +62,22 @@ extern void add_case_with_name(test_context *, const char *, void (*)());
 #define ID_INC_6 7
 #define ID_INC_7 8
 #define ID_INC_8 9
+#define ID_INC_9 10
+#define ID_INC_10 11
+#define ID_INC_11 12
+#define ID_INC_12 13
+#define ID_INC_13 14
+#define ID_INC_14 15
 
 #define ID_DEC(id) ID_DEC_I(id)
 #define ID_DEC_I(id) ID_DEC_ ## id
 
+#define ID_DEC_15 14
+#define ID_DEC_14 13
+#define ID_DEC_13 12
+#define ID_DEC_12 11
+#define ID_DEC_11 10
+#define ID_DEC_10 9
 #define ID_DEC_9 8
 #define ID_DEC_8 7
 #define ID_DEC_7 6
@@ -179,57 +191,63 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 
 #define CUE_ASSERT_EQ(actual, expected) \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		snprintf(buffer, sizeof(buffer), "Unexpect value\n\texpect: %d\n\tactual: %d", expected, actual);\
-		CU_assertImplementation((int)actual == (int)expected, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_act_t = (actual);\
+		int _i_exp_t = (expected);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect value\n\texpect: %d\n\tactual: %d", _i_exp_t, _i_act_t);\
+		CU_assertImplementation((int)_i_act_t == (int)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STRING_EQ(actual, expected) \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		snprintf(buffer, sizeof(buffer), "Unexpect string\n\texpect: [%s]\n\tactual: [%s]", expected, actual);\
-		CU_assertImplementation(0 == strcmp(actual, expected), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const char *_i_act_t = (actual);\
+		const char *_i_exp_t = (expected);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect string\n\texpect: [%s]\n\tactual: [%s]", _i_exp_t, _i_act_t);\
+		CU_assertImplementation(0 == strcmp(_i_act_t, _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_PTR_EQ(actual, expected) \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		snprintf(buffer, sizeof(buffer), "Unexpect pointer\n\texpect: %p\n\tactual: %p", expected, actual);\
-		CU_assertImplementation((void*)actual == (void*)expected, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const void *_i_act_t = (actual);\
+		const void *_i_exp_t = (expected);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect pointer\n\texpect: %p\n\tactual: %p", _i_exp_t, _i_act_t);\
+		CU_assertImplementation((void*)_i_act_t == (void*)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_SUBJECT_SUCCEEDED() \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int code = ((int(*)())test_subject)();\
-		snprintf(buffer, sizeof(buffer), "Expect called succeeded\n\tBut return(%d)", code);\
-		CU_assertImplementation(0==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_code_t = ((int(*)())test_subject)();\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect called succeeded\n\tBut return(%d)", _i_code_t);\
+		CU_assertImplementation(0==_i_code_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_SUBJECT_FAILED_WITH(err) \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int code = ((int(*)())test_subject)();\
-		snprintf(buffer, sizeof(buffer), "Expect called failed with(%d)\n\tBut return(%d)", err, code);\
-		CU_assertImplementation(err==code, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_code_t = ((int(*)())test_subject)();\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect called failed with(%d)\n\tBut return(%d)", err, _i_code_t);\
+		CU_assertImplementation(err==_i_code_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STDOUT_EQ(out_fmt, ...) \
 	do{\
-		char fmt_out[CUE_ASSERT_BUF_LEN];\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		const char *sout = std_out;\
-		snprintf(fmt_out, sizeof(fmt_out), out_fmt, ## __VA_ARGS__);\
-		snprintf(buffer, sizeof(buffer), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", fmt_out, sout);\
-		CU_assertImplementation(0==strcmp(sout, fmt_out), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_fmt_out[CUE_ASSERT_BUF_LEN];\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const char *_i_sout_t = std_out;\
+		snprintf(_i_fmt_out, sizeof(_i_fmt_out), out_fmt, ## __VA_ARGS__);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect stdout\n\texpect: [%s]\n\tactual: [%s]", _i_fmt_out, _i_sout_t);\
+		CU_assertImplementation(0==strcmp(_i_sout_t, _i_fmt_out), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STDERR_EQ(err) \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		const char *serr = std_err;\
-		snprintf(buffer, sizeof(buffer), "Unexpect stderr\n\texpect: [%s]\n\tactual: [%s]", err, serr);\
-		CU_assertImplementation(0==strcmp(serr, err), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const char *_i_serr_t = std_err;\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect stderr\n\texpect: [%s]\n\tactual: [%s]", err, _i_serr_t);\
+		CU_assertImplementation(0==strcmp(_i_serr_t, err), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define extern_mock_void_function_0(func) \
@@ -368,46 +386,46 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	mock_ ## func = stub;
 #define CUE_EXPECT_NEVER_CALLED(func)  \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' never called\n\tbut called %d times", #func, times);\
-		CU_assertImplementation(0==times, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_times_t = called_times_of(func);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' never called\n\tbut called %d times", #func, _i_times_t);\
+		CU_assertImplementation(0==_i_times_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_ONCE(func)  \
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called once\n\tbut called %d times", #func, times);\
-		CU_assertImplementation(1==times, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_times_t = called_times_of(func);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called once\n\tbut called %d times", #func, _i_times_t);\
+		CU_assertImplementation(1==_i_times_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_WITH_STRING(func, at, arg) \
 	CUE_EXPECT_CALLED_ONCE(func);\
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] string [%s]\n\tbut got [%s]", #func, at, arg, params_of(func, at));\
-		CU_assertImplementation(0 == strcmp((const char*)params_of(func, at), (const char*)arg), __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const char *_i_exp_t = (arg);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] string [%s]\n\tbut got [%s]", #func, at, _i_exp_t, params_of(func, at));\
+		CU_assertImplementation(0 == strcmp((const char*)params_of(func, at), _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_WITH_INT(func, at, arg) \
 	CUE_EXPECT_CALLED_ONCE(func);\
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] int %d\n\tbut got %d", #func, at, arg, params_of(func, at));\
-		CU_assertImplementation((int)params_of(func, at) == (int)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_exp_t = (arg);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int %d\n\tbut got %d", #func, at, _i_exp_t, params_of(func, at));\
+		CU_assertImplementation((int)params_of(func, at) == (int)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 
 #define CUE_EXPECT_CALLED_WITH_PTR(func, at, arg) \
 	CUE_EXPECT_CALLED_ONCE(func);\
 	do{\
-		char buffer[CUE_ASSERT_BUF_LEN];\
-		int times = called_times_of(func);\
-		snprintf(buffer, sizeof(buffer), "Expect '%s' called with params[%d] pointer %p\n\tbut got %p", #func, at, arg, params_of(func, at));\
-		CU_assertImplementation((void *)params_of(func, at) == (void *)arg, __LINE__, buffer, __FILE__, "", CU_FALSE);\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		const void *_i_exp_t = (arg);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] pointer %p\n\tbut got %p", #func, at, _i_exp_t, params_of(func, at));\
+		CU_assertImplementation((void *)params_of(func, at) == (void *)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #endif
