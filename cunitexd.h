@@ -68,10 +68,80 @@ extern void add_case_with_name(test_context *, const char *, void (*)());
 #define ID_INC_12 13
 #define ID_INC_13 14
 #define ID_INC_14 15
+#define ID_INC_15 16
+#define ID_INC_16 17
+#define ID_INC_17 18
+#define ID_INC_18 19
+#define ID_INC_19 20
+#define ID_INC_20 21
+#define ID_INC_21 22
+#define ID_INC_22 23
+#define ID_INC_23 24
+#define ID_INC_24 25
+#define ID_INC_25 26
+#define ID_INC_26 27
+#define ID_INC_27 28
+#define ID_INC_28 29
+#define ID_INC_29 30
+#define ID_INC_30 31
+#define ID_INC_31 32
+#define ID_INC_32 33
+#define ID_INC_33 34
+#define ID_INC_34 35
+#define ID_INC_35 36
+#define ID_INC_36 37
+#define ID_INC_37 38
+#define ID_INC_38 39
+#define ID_INC_39 40
+#define ID_INC_40 41
+#define ID_INC_41 42
+#define ID_INC_42 43
+#define ID_INC_43 44
+#define ID_INC_44 45
+#define ID_INC_45 46
+#define ID_INC_46 47
+#define ID_INC_47 48
+#define ID_INC_48 49
+#define ID_INC_49 50
 
 #define ID_DEC(id) ID_DEC_I(id)
 #define ID_DEC_I(id) ID_DEC_ ## id
 
+#define ID_DEC_50 49
+#define ID_DEC_49 48
+#define ID_DEC_48 47
+#define ID_DEC_47 46
+#define ID_DEC_46 45
+#define ID_DEC_45 44
+#define ID_DEC_44 43
+#define ID_DEC_43 42
+#define ID_DEC_42 41
+#define ID_DEC_41 40
+#define ID_DEC_40 39
+#define ID_DEC_39 38
+#define ID_DEC_38 37
+#define ID_DEC_37 36
+#define ID_DEC_36 35
+#define ID_DEC_35 34
+#define ID_DEC_34 33
+#define ID_DEC_33 32
+#define ID_DEC_32 31
+#define ID_DEC_31 30
+#define ID_DEC_30 29
+#define ID_DEC_29 28
+#define ID_DEC_28 27
+#define ID_DEC_27 26
+#define ID_DEC_26 25
+#define ID_DEC_25 24
+#define ID_DEC_24 23
+#define ID_DEC_23 22
+#define ID_DEC_22 21
+#define ID_DEC_21 20
+#define ID_DEC_20 19
+#define ID_DEC_19 18
+#define ID_DEC_18 17
+#define ID_DEC_17 16
+#define ID_DEC_16 15
 #define ID_DEC_15 14
 #define ID_DEC_14 13
 #define ID_DEC_13 12
@@ -374,6 +444,41 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		func ## _p4 = p4;\
 		if(mock_ ## func)\
 			return mock_ ## func(p1, p2, p3, p4);\
+		return default_result;\
+	}
+
+#define extern_mock_function_7(rtype, func, t1, t2, t3, t4, t5, t6, t7) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6, t7);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;\
+	extern t4 func ## _p4;\
+	extern t5 func ## _p5;\
+	extern t6 func ## _p6;\
+	extern t7 func ## _p7;
+#define mock_function_7(rtype, func, t1, t2, t3, t4, t5, t6, t7) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	t4 func ## _p4;\
+	t5 func ## _p5;\
+	t6 func ## _p6;\
+	t7 func ## _p7;\
+	rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6, t7);\
+	rtype func(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) {\
+		static rtype default_result;\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		func ## _p4 = p4;\
+		func ## _p5 = p5;\
+		func ## _p6 = p6;\
+		func ## _p7 = p7;\
+		if(mock_ ## func)\
+			return mock_ ## func(p1, p2, p3, p4, p5, p6, p7);\
 		return default_result;\
 	}
 
