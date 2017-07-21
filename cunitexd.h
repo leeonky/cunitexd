@@ -447,6 +447,39 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		return default_result;\
 	}
 
+#define extern_mock_function_6(rtype, func, t1, t2, t3, t4, t5, t6) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;\
+	extern t4 func ## _p4;\
+	extern t5 func ## _p5;\
+	extern t6 func ## _p6;
+
+#define mock_function_6(rtype, func, t1, t2, t3, t4, t5, t6) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	t4 func ## _p4;\
+	t5 func ## _p5;\
+	t6 func ## _p6;\
+	rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6);\
+	rtype func(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) {\
+		static rtype default_result;\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		func ## _p4 = p4;\
+		func ## _p5 = p5;\
+		func ## _p6 = p6;\
+		if(mock_ ## func)\
+			return mock_ ## func(p1, p2, p3, p4, p5, p6);\
+		return default_result;\
+	}
+
 #define extern_mock_function_7(rtype, func, t1, t2, t3, t4, t5, t6, t7) \
 	extern int func ## _times;\
 	extern rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6, t7);\
@@ -479,6 +512,44 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		func ## _p7 = p7;\
 		if(mock_ ## func)\
 			return mock_ ## func(p1, p2, p3, p4, p5, p6, p7);\
+		return default_result;\
+	}
+
+#define extern_mock_function_8(rtype, func, t1, t2, t3, t4, t5, t6, t7, t8) \
+	extern int func ## _times;\
+	extern rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6, t7, t8);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;\
+	extern t4 func ## _p4;\
+	extern t5 func ## _p5;\
+	extern t6 func ## _p6;\
+	extern t7 func ## _p7;\
+	extern t8 func ## _p8;
+#define mock_function_8(rtype, func, t1, t2, t3, t4, t5, t6, t7, t8) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	t4 func ## _p4;\
+	t5 func ## _p5;\
+	t6 func ## _p6;\
+	t7 func ## _p7;\
+	t8 func ## _p8;\
+	rtype (*mock_ ## func)(t1, t2, t3, t4, t5, t6, t7, t8);\
+	rtype func(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) {\
+		static rtype default_result;\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		func ## _p4 = p4;\
+		func ## _p5 = p5;\
+		func ## _p6 = p6;\
+		func ## _p7 = p7;\
+		func ## _p8 = p8;\
+		if(mock_ ## func)\
+			return mock_ ## func(p1, p2, p3, p4, p5, p6, p7, p8);\
 		return default_result;\
 	}
 
@@ -523,7 +594,6 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		CU_assertImplementation((int)params_of(func, at) == (int)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
-
 #define CUE_EXPECT_CALLED_WITH_PTR(func, at, arg) \
 	CUE_EXPECT_CALLED_ONCE(func);\
 	do{\
@@ -531,6 +601,15 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		const void *_i_exp_t = (arg);\
 		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] pointer %p\n\tbut got %p", #func, at, _i_exp_t, params_of(func, at));\
 		CU_assertImplementation((void *)params_of(func, at) == (void *)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_EXPECT_CALLED_TIMES(func, t)  \
+	do{\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_times_t = called_times_of(func);\
+		int _times = (t);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called %d times\n\tbut called %d times", #func, _times, _i_times_t);\
+		CU_assertImplementation(_times==_i_times_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #endif
