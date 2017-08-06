@@ -274,7 +274,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		const char *_i_act_t = (actual);\
 		const char *_i_exp_t = (expected);\
 		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect string\n\texpect: [%s]\n\tactual: [%s]", _i_exp_t, _i_act_t);\
-		CU_assertImplementation(0 == strcmp(_i_act_t, _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+		CU_assertImplementation(_i_act_t && _i_exp_t && 0 == strcmp(_i_act_t, _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_PTR_EQ(actual, expected) \
@@ -345,6 +345,57 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		func ## _p1 = p1;\
 		if(mock_ ## func)\
 			mock_ ## func(p1);\
+	}
+
+#define extern_mock_void_function_4(func, t1, t2, t3, t4) \
+	extern int func ## _times;\
+	extern void (*mock_ ## func)(t1, t2, t3, t4);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;\
+	extern t4 func ## _p4;
+#define mock_void_function_4(func, t1, t2, t3, t4) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	t4 func ## _p4;\
+	void (*mock_ ## func)(t1, t2, t3, t4);\
+	void func(t1 p1, t2 p2, t3 p3, t4 p4) {\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		func ## _p4 = p4;\
+		if(mock_ ## func)\
+			mock_ ## func(p1, p2, p3, p4);\
+	}
+
+#define extern_mock_void_function_5(func, t1, t2, t3, t4, t5) \
+	extern int func ## _times;\
+	extern void (*mock_ ## func)(t1, t2, t3, t4, t5);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;\
+	extern t4 func ## _p4;\
+	extern t5 func ## _p5;
+#define mock_void_function_5(func, t1, t2, t3, t4, t5) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	t4 func ## _p4;\
+	t5 func ## _p5;\
+	void (*mock_ ## func)(t1, t2, t3, t4, t5);\
+	void func(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) {\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		func ## _p4 = p4;\
+		func ## _p5 = p5;\
+		if(mock_ ## func)\
+			mock_ ## func(p1, p2, p3, p4, p5);\
 	}
 
 #define extern_mock_function_0(rtype, func) \
@@ -582,7 +633,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
 		const char *_i_exp_t = (arg);\
 		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] string [%s]\n\tbut got [%s]", #func, at, _i_exp_t, params_of(func, at));\
-		CU_assertImplementation(0 == strcmp((const char*)params_of(func, at), _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+		CU_assertImplementation(params_of(func, at) && _i_exp_t && 0 == strcmp((const char*)params_of(func, at), _i_exp_t), __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_WITH_INT(func, at, arg) \
