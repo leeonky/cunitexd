@@ -347,6 +347,45 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 			mock_ ## func(p1);\
 	}
 
+#define extern_mock_void_function_2(func, t1, t2) \
+	extern int func ## _times;\
+	extern void (*mock_ ## func)(t1, t2);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;
+#define mock_void_function_2(func, t1, t2) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	void (*mock_ ## func)(t1, t2);\
+	void func(t1 p1, t2 p2) {\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		if(mock_ ## func)\
+			mock_ ## func(p1, p2);\
+	}
+
+#define extern_mock_void_function_3(func, t1, t2, t3) \
+	extern int func ## _times;\
+	extern void (*mock_ ## func)(t1, t2, t3);\
+	extern t1 func ## _p1;\
+	extern t2 func ## _p2;\
+	extern t3 func ## _p3;
+#define mock_void_function_3(func, t1, t2, t3) \
+	int func ## _times;\
+	t1 func ## _p1;\
+	t2 func ## _p2;\
+	t3 func ## _p3;\
+	void (*mock_ ## func)(t1, t2, t3);\
+	void func(t1 p1, t2 p2, t3 p3) {\
+		++func ## _times;\
+		func ## _p1 = p1;\
+		func ## _p2 = p2;\
+		func ## _p3 = p3;\
+		if(mock_ ## func)\
+			mock_ ## func(p1, p2, p3);\
+	}
+
 #define extern_mock_void_function_4(func, t1, t2, t3, t4) \
 	extern int func ## _times;\
 	extern void (*mock_ ## func)(t1, t2, t3, t4);\
