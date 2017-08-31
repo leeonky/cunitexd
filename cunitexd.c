@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include "cunitexd.h"
 
+FILE *fmemopen(void *, size_t, const char *);
+
 app_context actxt;
 
 int init_app_context(app_context *context, const char *input, char *arg1, ...) {
