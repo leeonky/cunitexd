@@ -4,10 +4,10 @@
 
 FILE *fmemopen(void *, size_t, const char *);
 
-app_context actxt;
+test_app_context actxt;
 
-int init_app_context(app_context *context, const char *input, char *arg1, ...) {
-	close_app_context(context);
+int init_test_app_context(test_app_context *context, const char *input, char *arg1, ...) {
+	close_test_app_context(context);
 
 	va_list list;
 	context->argc = 0;
@@ -26,29 +26,29 @@ int init_app_context(app_context *context, const char *input, char *arg1, ...) {
 	return !(context->input_stream && context->output_stream && context->error_stream);
 }
 
-char* output_buffer(app_context *context) {
+char* output_buffer(test_app_context *context) {
 	fflush(context->output_stream);
 	return context->output_buffer;
 }
 
-char* error_buffer(app_context *context) {
+char* error_buffer(test_app_context *context) {
 	fflush(context->error_stream);
 	return context->error_buffer;
 }
 
-int close_app_context(app_context *context) {
+int close_test_app_context(test_app_context *context) {
 	if (context->input_stream) {
 		int res1 = fclose(context->input_stream);
 		int res2 = fclose(context->output_stream);
 		int res3 = fclose(context->error_stream);
 
-		bzero(context, sizeof(app_context));
+		bzero(context, sizeof(test_app_context));
 		return res1 || res2 || res3;
 	} else
 		return 0;
 }
 
-int invoke_app(app_context *ctxt, int(*sub_main)(int, char**, FILE *, FILE *, FILE *)){
+int invoke_app(test_app_context *ctxt, int(*sub_main)(int, char**, FILE *, FILE *, FILE *)){
 	return sub_main(ctxt->argc, ctxt->argv, ctxt->input_stream, ctxt->output_stream, ctxt->error_stream);
 }
 

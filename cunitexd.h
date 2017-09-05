@@ -4,7 +4,7 @@
 #include <CUnit/Basic.h>
 #include <stdio.h>
 
-typedef struct app_context {
+typedef struct test_app_context {
 	char input_buffer[1024];
 	char output_buffer[1024];
 	char error_buffer[1024];
@@ -13,20 +13,20 @@ typedef struct app_context {
 	FILE *error_stream;
 	int argc;
 	char *argv[64];
-} app_context;
+} test_app_context;
 
-extern int init_app_context(app_context *, const char *, char *, ...);
-extern char* output_buffer(app_context *);
-extern char* error_buffer(app_context *);
-extern int close_app_context(app_context *);
-extern int invoke_app(app_context *, int(*)(int, char**, FILE *, FILE *, FILE *));
+extern int init_test_app_context(test_app_context *, const char *, char *, ...);
+extern char* output_buffer(test_app_context *);
+extern char* error_buffer(test_app_context *);
+extern int close_test_app_context(test_app_context *);
+extern int invoke_app(test_app_context *, int(*)(int, char**, FILE *, FILE *, FILE *));
 
-extern app_context actxt;
+extern test_app_context actxt;
 
-#define init_subject(input, ...) init_app_context(&actxt, input, ##__VA_ARGS__, "")
+#define init_subject(input, ...) init_test_app_context(&actxt, input, ##__VA_ARGS__, "")
 #define std_out output_buffer(&actxt)
 #define std_err error_buffer(&actxt)
-#define close_subject() close_app_context(&actxt)
+#define close_subject() close_test_app_context(&actxt)
 #define invoke_subject(main_func) invoke_app(&actxt, main_func)
 
 typedef int (*hook_pointer)();
