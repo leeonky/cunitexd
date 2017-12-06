@@ -4,6 +4,10 @@
 #include <CUnit/Basic.h>
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct test_app_context {
 	char input_buffer[1024];
 	char output_buffer[1024];
@@ -242,7 +246,7 @@ void MG_ID(regist_, suite_identity)() {\
 	static t CU_SYM(subject_, index)();\
 	static test_context *CU_SYM(ctrl_, index)(){\
 		test_context *ctxt = CU_SYM(ctrl_, ID_DEC(index))();\
-		ctxt->subject = CU_SYM(subject_, index);\
+		ctxt->subject = (void *)CU_SYM(subject_, index);\
 		return ctxt;\
 	}\
 	static t CU_SYM(subject_, index)()
@@ -300,6 +304,14 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		int _i_code_t = ((int(*)())test_subject)();\
 		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect called failed with(%d)\n\tBut return(%d)", err, _i_code_t);\
 		CU_assertImplementation(err==_i_code_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_ASSERT_SUBJECT_FAILED() \
+	do{\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		int _i_code_t = ((int(*)())test_subject)();\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect called failed\n\tBut return(%d)", _i_code_t);\
+		CU_assertImplementation(0!=_i_code_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STDOUT_EQ(out_fmt, ...) \
@@ -393,4 +405,9 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	} while(0)
 
 #include "mock.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
