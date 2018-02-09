@@ -19,7 +19,7 @@ typedef struct test_app_context {
 	char *argv[64];
 } test_app_context;
 
-extern int init_test_app_context(test_app_context *, const char *, char *, ...);
+extern int init_test_app_context(test_app_context *, const char *, const char *, ...);
 extern char* output_buffer(test_app_context *);
 extern char* error_buffer(test_app_context *);
 extern int close_test_app_context(test_app_context *);
@@ -256,6 +256,8 @@ void MG_ID(regist_, suite_identity)() {\
 		void MG_ID(regist_, suite_identity)();\
 		MG_ID(regist_, suite_identity)();\
 	} while(0)
+
+#define CALL_SUBJECT(t) (((t)(*)())test_subject)()
 
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);

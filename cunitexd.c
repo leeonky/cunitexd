@@ -6,7 +6,7 @@ FILE *fmemopen(void *, size_t, const char *);
 
 test_app_context actxt;
 
-int init_test_app_context(test_app_context *context, const char *input, char *arg1, ...) {
+int init_test_app_context(test_app_context *context, const char *input, const char *arg1, ...) {
 	close_test_app_context(context);
 
 	va_list list;
@@ -14,7 +14,7 @@ int init_test_app_context(test_app_context *context, const char *input, char *ar
 	context->argv[context->argc++] = "main";
 	va_start(list, arg1);
 	while(strlen(arg1)>0) {
-		context->argv[context->argc++] = arg1;
+		context->argv[context->argc++] = (char *)arg1;
 		arg1 = va_arg(list, char *);
 	}
 	va_end(list);
