@@ -257,7 +257,7 @@ void MG_ID(regist_, suite_identity)() {\
 		MG_ID(regist_, suite_identity)();\
 	} while(0)
 
-#define CALL_SUBJECT(t) (((t)(*)())test_subject)()
+#define CALL_SUBJECT(t) (((t (*)())test_subject)())
 
 extern const char *cunit_exd_string_equal(const char *, const char *);
 extern const char *cunit_exd_ptr_equal(const void *, const void *);
@@ -383,9 +383,9 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	CUE_EXPECT_CALLED_ONCE(func);\
 	do{\
 		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
-		int _i_exp_t = (arg);\
-		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int %d\n\tbut got %d", #func, at, _i_exp_t, (int)params_of(func, at));\
-		CU_assertImplementation((int)params_of(func, at) == (int)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+		int64_t _i_exp_t = (arg);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int " PRId64 "\n\tbut got " PRId64, #func, at, _i_exp_t, (int64_t)params_of(func, at));\
+		CU_assertImplementation((int64_t)params_of(func, at) == (int64_t)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_WITH_PTR(func, at, arg) \
