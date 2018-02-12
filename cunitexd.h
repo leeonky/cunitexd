@@ -384,7 +384,7 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 	do{\
 		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
 		int64_t _i_exp_t = (arg);\
-		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int " PRId64 "\n\tbut got " PRId64, #func, at, _i_exp_t, (int64_t)params_of(func, at));\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int %lld\n\tbut got %lld", #func, at, _i_exp_t, (int64_t)params_of(func, at));\
 		CU_assertImplementation((int64_t)params_of(func, at) == (int64_t)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
