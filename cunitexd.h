@@ -268,10 +268,10 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 #define CUE_ASSERT_EQ(actual, expected) \
 	do{\
 		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
-		int _i_act_t = (actual);\
-		int _i_exp_t = (expected);\
-		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect value\n\texpect: %d\n\tactual: %d", _i_exp_t, _i_act_t);\
-		CU_assertImplementation((int)_i_act_t == (int)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+		int64_t _i_act_t = (actual);\
+		int64_t _i_exp_t = (expected);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Unexpect value\n\texpect: %lld\n\tactual: %lld", _i_exp_t, _i_act_t);\
+		CU_assertImplementation((int64_t)_i_act_t == (int64_t)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_ASSERT_STRING_EQ(actual, expected) \
@@ -386,6 +386,15 @@ extern int cunit_exd_equal(long long, long long, const char *, int, const char *
 		int64_t _i_exp_t = (arg);\
 		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int %lld\n\tbut got %lld", #func, at, _i_exp_t, (int64_t)params_of(func, at));\
 		CU_assertImplementation((int64_t)params_of(func, at) == (int64_t)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
+	} while(0)
+
+#define CUE_EXPECT_CALLED_WITH_DOUBLE(func, at, arg) \
+	CUE_EXPECT_CALLED_ONCE(func);\
+	do{\
+		char _i_buf_t[CUE_ASSERT_BUF_LEN];\
+		double _i_exp_t = (arg);\
+		snprintf(_i_buf_t, sizeof(_i_buf_t), "Expect '%s' called with params[%d] int %lld\n\tbut got %lld", #func, at, _i_exp_t, (double)params_of(func, at));\
+		CU_assertImplementation((double)params_of(func, at) == (double)_i_exp_t, __LINE__, _i_buf_t, __FILE__, "", CU_FALSE);\
 	} while(0)
 
 #define CUE_EXPECT_CALLED_WITH_PTR(func, at, arg) \
